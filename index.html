@@ -42,7 +42,7 @@
       logBox.scrollTop = logBox.scrollHeight;
     }
 
-    const socket = new WebSocket("ws://localhost:3000");
+    const socket = new WebSocket("https://wtp-server-k97x.onrender.com");
 
     socket.onopen = () => log("🔗 Connesso al server");
 
