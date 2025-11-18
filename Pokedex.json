@@ -114,7 +114,7 @@
         },
         {
             "numero": "029",
-            "name": "Nidoran♀"
+            "name": "Nidoran"
         },
         {
             "numero": "030",
@@ -126,7 +126,7 @@
         },
         {
             "numero": "032",
-            "name": "Nidoran♂"
+            "name": "Nidoran"
         },
         {
             "numero": "033",
@@ -2082,11 +2082,7 @@
               },
               {
                 "numero": "521",
-                "name": "Unfezant ♂"
-              },
-              {
-                "numero": "521",
-                "name": "Unfezant ♀"
+                "name": "Unfezant"
               },
               {
                 "numero": "522",
@@ -2637,10 +2633,6 @@
                 "name": "Greninja"
               },
               {
-                "numero": "658",
-                "name": "Ash-Greninja"
-              },
-              {
                 "numero": "659",
                 "name": "Bunnelby"
               },
@@ -2986,23 +2978,11 @@
               },
               {
                 "numero": "745",
-                "name": "Lycanroc (Forma Meio-Dia)"
-              },
-              {
-                "numero": "745",
-                "name": "Lycanroc (Forma Meia-Noite)"
-              },
-              {
-                "numero": "745",
-                "name": "Lycanroc (Forma Crepúsculo)"
+                "name": "Lycanroc"
               },
               {
                 "numero": "746",
-                "name": "Wishiwashi (Forma Solo)"
-              },
-              {
-                "numero": "746",
-                "name": "Wishiwashi (Forma Cardume)"
+                "name": "Wishiwashi"
               },
               {
                 "numero": "747",
@@ -3114,35 +3094,7 @@
               },
               {
                 "numero": "774",
-                "name": "Minior (Forma Meteoro)"
-              },
-              {
-                "numero": "774",
-                "name": "Minior (Núcleo Vermelho)"
-              },
-              {
-                "numero": "774",
-                "name": "Minior (Núcleo Laranja)"
-              },
-              {
-                "numero": "774",
-                "name": "Minior (Núcleo Amarelo)"
-              },
-              {
-                "numero": "774",
-                "name": "Minior (Núcleo Verde)"
-              },
-              {
-                "numero": "774",
-                "name": "Minior (Núcleo Azul)"
-              },
-              {
-                "numero": "774",
-                "name": "Minior (Núcleo Índigo)"
-              },
-              {
-                "numero": "774",
-                "name": "Minior (Núcleo Violeta)"
+                "name": "Minior"
               },
               {
                 "numero": "775",
@@ -3158,11 +3110,7 @@
               },
               {
                 "numero": "778",
-                "name": "Mimikyu (Forma Disfarçada)"
-              },
-              {
-                "numero": "778",
-                "name": "Mimikyu (Forma Quebrada)"
+                "name": "Mimikyu"
               },
               {
                 "numero": "779",
@@ -3215,10 +3163,6 @@
               {
                 "numero": "791",
                 "name": "Solgaleo"
-              },
-              {
-                "numero": "791",
-                "name": "Solgaleo (Fase Sol Radiante)"
               },
               {
                 "numero": "792",

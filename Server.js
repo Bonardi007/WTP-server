@@ -1,9 +1,9 @@
-
 // =============== DIPENDENZE ===============
 const path = require('path');
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
+const pokedex = require('./Pokedex.json');
 
 // =============== CONFIGURAZIONE SERVER ===============
 const app = express();
@@ -16,67 +16,116 @@ app.use(express.static(path.join(__dirname)));
 // =============== COSTANTI E VARIABILI GLOBALI ===============
 let num_pokedex = 0;
 let idCounter = 0;
-// Stato del gioco
 let players = {};
+let p_num;
 
-
+// Funzione di broadcast con log
 function broadcast(message) {
   const serializedMessage = JSON.stringify(message);
+  console.log("📡 [BROADCAST] →", serializedMessage);
+
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       try {
         client.send(serializedMessage);
       } catch (e) {
-        console.error(`Errore nell'invio del messaggio: ${e.message}`);
+        console.error(`❌ Errore nell'invio del messaggio: ${e.message}`);
       }
     }
   });
 }
+
+// Funzione: prende Pokémon casuale
+function getPokemonRandom() {
+  const lista = pokedex.pokemons;
+  const index = Math.floor(Math.random() * lista.length);
+  console.log(`🎲 Pokémon random scelto: ${lista[index].name} (#${lista[index].numero})`);
+  return lista[index];
+}
+
+// Invia numero al client
+function Invianumero() {
+  const p = getPokemonRandom();
+  p_num = p;
+
+  const pokemon = { numero: p.numero };
+  console.log("➡️ Inviando numero Pokémon:", pokemon);
+
+  broadcast({ type: 'invio_numero', pokemon });
+}
+
+// Invia nome al client
+function InviaNome() {
+  if (!p_num) {
+    console.log("⚠️ Tentato invio nome, ma p_num non è impostato!");
+    return;
+  }
+
+  const pokemon = { nome: p_num.name };
+  console.log("➡️ Inviando nome Pokémon:", pokemon);
+
+  broadcast({ type: 'invio_nome', pokemon });
+}
+
 // =============== GESTIONE CONNESSIONI WEBSOCKET ===============
 wss.on('connection', socket => {
   const id = ++idCounter;
 
-  // Inizializzazione del nuovo giocatore
   players[id] = { 
     punteggio: 0,
-    nickname: 'Player' + id, 
+    nickname: 'Player' + id,
   };
 
-  // Invia stato iniziale a questo client
-  socket.send(JSON.stringify({ type: 'init', id, players }));
+  console.log(`🟢 Nuova connessione → Player${id}`);
 
+  // Invia stato iniziale
+  socket.send(JSON.stringify({ type: 'init', id, players }));
+  console.log(`📨 Inviato init a Player${id}`);
+
+  // Ricezione messaggi dal client
   socket.on('message', msgStr => {
     const msg = JSON.parse(msgStr);
-    console.log(`[SERVER] Ricevuto messaggio:`, msg);
+    console.log(`📥 [SERVER] Ricevuto da Player${id}:`, msg);
 
-    // Non processare messaggi per giocatori non vivi
-    if (!players[id]) return;
-  
-    // Gestione messaggi dal client
+    if (!players[id]) {
+      console.log(`⚠️ Messaggio ignorato: Player${id} non esiste più`);
+      return;
+    }
+
+    // ====== Gestione messaggi client ======
     if (msg.type === 'Join' && msg.nickname) {
-      // Imposta il nickname e reinizializza il giocatore
       players[id].nickname = msg.nickname;
-    }else if (msg.type === 'Guess' && msg.Risposta) {
-      //Da Approfondire Confronto risposta con Array numero-pokemon
-      //if indovina
-      players[id].punteggio++;
-      broadcast({ type: 'Correct', msg });
-      //else non indovina
-      broadcast({ type: 'Wrong', msg });
+      console.log(`👤 Player${id} ha impostato il nickname → ${msg.nickname}`);
+
+    } else if (msg.type === 'Guess' && msg.Risposta) {
+      console.log(`🤔 Player${id} ha tentato: "${msg.Risposta}"`);
+
+      if (p_num && p_num.name.toLowerCase() === msg.Risposta.toLowerCase()) {
+        players[id].punteggio++;
+        console.log(`✅ RISPOSTA CORRETTA da Player${id}!`);
+        broadcast({ type: 'Correct', msg });
+      } else {
+        console.log(`❌ Risposta sbagliata di Player${id}`);
+        broadcast({ type: 'Wrong', msg });
+      }
+    }
+
+    // Messaggi aggiuntivi se li userai:
+    if (msg.type === 'RequestNumero') {
+      console.log(`🔢 Player${id} richiede il numero del Pokémon`);
+      Invianumero();
+    }
+
+    if (msg.type === 'RequestNome') {
+      console.log(`📛 Player${id} richiede il nome del Pokémon`);
+      InviaNome();
     }
   });
-  
-  // Gestione disconnessione
+
+  // Disconnessione
   socket.on('close', () => {
+    console.log(`🔴 Player${id} disconnesso`);
     delete players[id];
     broadcast({ type: 'remove', id });
   });
 });
-
-// =============== TIMER E INTERVALLI ===============
-// Timer durata del round
-setInterval(DurataRound, 30000);
-
-// =============== AVVIO SERVER ===============
-const PORT = process.env.PORT || 10000;
-server.listen(PORT, () => console.log(`Game server running on port ${PORT}`));
