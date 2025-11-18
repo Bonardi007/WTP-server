@@ -19,21 +19,41 @@ let idCounter = 0;
 let players = {};
 let p_num;
 
-// Funzione di broadcast con log
+// Dopo aver creato il server
+server.listen(3000, () => {
+  console.log('Server in ascolto sulla porta 3000');
+});
+
+// Nel broadcast
 function broadcast(message) {
   const serializedMessage = JSON.stringify(message);
-  console.log("📡 [BROADCAST] →", serializedMessage);
-
+  console.log('[SERVER] Invio messaggio a tutti:', message); // <-- log
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       try {
         client.send(serializedMessage);
       } catch (e) {
-        console.error(`❌ Errore nell'invio del messaggio: ${e.message}`);
+        console.error(`Errore nell'invio del messaggio: ${e.message}`);
       }
     }
   });
 }
+
+// Nel WebSocket connection
+wss.on('connection', socket => {
+  const id = ++idCounter;
+  console.log(`[SERVER] Nuovo client connesso, ID: ${id}`);
+
+  socket.on('message', msgStr => {
+    const msg = JSON.parse(msgStr);
+    console.log(`[SERVER] Ricevuto dal client ${id}:`, msg);
+  });
+
+  socket.on('close', () => {
+    console.log(`[SERVER] Client ${id} disconnesso`);
+  });
+});
+
 
 // Funzione: prende Pokémon casuale
 function getPokemonRandom() {
