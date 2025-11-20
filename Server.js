@@ -4,6 +4,7 @@ const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const pokedex = require('./Pokedex.json');
+const Levenshtein = require('fast-levenshtein');
 
 // =============== CONFIGURAZIONE SERVER ===============
 const app = express();
@@ -20,8 +21,8 @@ let players = {};
 let p_num;
 
 // Dopo aver creato il server
-server.listen(3000, () => {
-  console.log('Server in ascolto sulla porta 3000');
+server.listen(5500, () => {
+  console.log('Server in ascolto sulla porta 5500');
 });
 
 // Nel broadcast
@@ -119,11 +120,12 @@ wss.on('connection', socket => {
 
     } else if (msg.type === 'Guess' && msg.Risposta) {
       console.log(`🤔 Player${id} ha tentato: "${msg.Risposta}"`);
-
-      if (p_num && p_num.name.toLowerCase() === msg.Risposta.toLowerCase()) {
+      const distanza = Levenshtein.get(msg.Risposta.toLowerCase(), p_num.name.toLowerCase());
+      if (distanza < 2) {
         players[id].punteggio++;
         console.log(`✅ RISPOSTA CORRETTA da Player${id}!`);
         broadcast({ type: 'Correct', msg });
+        InviaNome();
       } else {
         console.log(`❌ Risposta sbagliata di Player${id}`);
         broadcast({ type: 'Wrong', msg });
