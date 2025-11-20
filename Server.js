@@ -21,8 +21,8 @@ let players = {};
 let p_num;
 
 // Dopo aver creato il server
-server.listen(5500, () => {
-  console.log('Server in ascolto sulla porta 5500');
+server.listen(3000, () => {
+  console.log('Server in ascolto sulla porta 3000');
 });
 
 // Nel broadcast
