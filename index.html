@@ -2,104 +2,41 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>PokeGuess Client</title>
+  <title>Who's That Pokémon? - Lobby</title>
   <style>
-    body { font-family: Arial; padding: 20px; }
-    #log { border: 1px solid #ccc; height: 200px; overflow-y: auto; padding: 5px; }
+    body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; margin-top: 50px; }
+    input, button { padding: 10px; margin: 5px; font-size: 16px; }
+    .container { display: flex; flex-direction: column; width: 300px; text-align: center; }
+    .room-actions { margin-top: 10px; }
   </style>
 </head>
 <body>
 
-  <h2>PokeGuess – Client Base</h2>
+  <h1>Who's That Pokémon?</h1>
+  <h2>Entra nel gioco</h2>
 
-  <div>
-    <label>Nickname: </label>
-    <input id="nickname" type="text" />
-    <button onclick="joinGame()">Join</button>
+  <div class="container">
+
+    <input id="nickname" type="text" placeholder="Inserisci il tuo nickname">
+
+    <div class="room-actions">
+      <button id="join">Entra nella stanza</button>
+    </div>
+
   </div>
-
-  <br>
-
-  <div>
-    <label>Risposta Pokémon: </label>
-    <input id="guess" type="text" />
-    <button onclick="sendGuess()">Invia</button>
-  </div>
-
-  <br>
-
-  <button onclick="requestNumber()">👉 Richiedi Numero Pokémon</button>
-  <button onclick="requestName()">👉 Richiedi Nome Pokémon</button>
-
-  <h3>Log:</h3>
-  <div id="log"></div>
 
   <script>
-    const logBox = document.getElementById('log');
-
-    function log(msg) {
-      logBox.innerHTML += msg + "<br>";
-      logBox.scrollTop = logBox.scrollHeight;
-    }
-
-    const socket = new WebSocket("https://wtp-server-k97x.onrender.com");
-
-    socket.onopen = () => log("🔗 Connesso al server");
-
-    socket.onmessage = evt => {
-      const msg = JSON.parse(evt.data);
-
-      if (msg.type === 'init') {
-        log("🆗 Inizializzato! ID: " + msg.id);
+    document.getElementById("join").onclick = () => {
+      const nickname = document.getElementById("nickname").value.trim();
+      if (!nickname) {
+        alert("Inserisci un nickname!");
+        return;
       }
 
-      if (msg.type === 'invio_numero') {
-        log("📟 Numero Pokémon ricevuto: " + msg.pokemon.numero);
-      }
-
-      if (msg.type === 'invio_nome') {
-        log("🔤 Nome Pokémon ricevuto: " + msg.pokemon.nome);
-      }
-
-      if (msg.type === 'Correct') {
-        log("✅ Risposta corretta di: " + msg.msg.Risposta);
-      }
-
-      if (msg.type === 'Wrong') {
-        log("❌ Risposta sbagliata di: " + msg.msg.Risposta);
-      }
-
-      if (msg.type === 'remove') {
-        log("🚪 Giocatore disconnesso: " + msg.id);
-      }
+      sessionStorage.setItem("nickname", nickname);
+      window.location.href = "game.html";
     };
-
-    // ====== FUNZIONI CLIENT ======
-
-    function joinGame() {
-      const nickname = document.getElementById('nickname').value;
-      if (!nickname) return;
-      socket.send(JSON.stringify({ type: 'Join', nickname }));
-      log("👤 Join inviato: " + nickname);
-    }
-
-    function sendGuess() {
-      const Risposta = document.getElementById('guess').value;
-      if (!Risposta) return;
-      socket.send(JSON.stringify({ type: 'Guess', Risposta }));
-      log("🎯 Guess inviato: " + Risposta);
-    }
-
-    // Queste due dipendono da funzioni lato server
-    function requestNumber() {
-      socket.send(JSON.stringify({ type: 'RequestNumero' }));
-      log("🔢 Richiesto numero Pokémon");
-    }
-
-    function requestName() {
-      socket.send(JSON.stringify({ type: 'RequestNome' }));
-      log("📛 Richiesto nome Pokémon");
-    }
   </script>
+
 </body>
 </html>
