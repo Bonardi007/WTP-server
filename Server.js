@@ -14,49 +14,35 @@ const wss = new WebSocket.Server({ server });
 // Servire file statici
 app.use(express.static(path.join(__dirname)));
 
-// =============== COSTANTI E VARIABILI GLOBALI ===============
-let num_pokedex = 0;
+// =============== VARIABILI GLOBALI ===============
 let idCounter = 0;
 let players = {};
-let p_num;
+let p_num; // Pokémon corrente
 
-// Dopo aver creato il server
+// Timer turno
+let turnoCountdown = 30;
+let countdownInterval;
+
+// Timer inter-round
+let interRoundTime = 5;
+let interRoundInterval;
+
+// =============== SERVER IN ASCOLTO ===============
 server.listen(3000, () => {
-  console.log('Server in ascolto sulla porta 3000');
+  console.log('✅ Server in ascolto sulla porta 3000');
 });
 
-// Nel broadcast
+// =============== FUNZIONI UTILI ===============
 function broadcast(message) {
   const serializedMessage = JSON.stringify(message);
-  console.log('[SERVER] Invio messaggio a tutti:', message); // <-- log
+  console.log('[SERVER] Broadcast:', message);
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
-      try {
-        client.send(serializedMessage);
-      } catch (e) {
-        console.error(`Errore nell'invio del messaggio: ${e.message}`);
-      }
+      client.send(serializedMessage);
     }
   });
 }
 
-// Nel WebSocket connection
-wss.on('connection', socket => {
-  const id = ++idCounter;
-  console.log(`[SERVER] Nuovo client connesso, ID: ${id}`);
-
-  socket.on('message', msgStr => {
-    const msg = JSON.parse(msgStr);
-    console.log(`[SERVER] Ricevuto dal client ${id}:`, msg);
-  });
-
-  socket.on('close', () => {
-    console.log(`[SERVER] Client ${id} disconnesso`);
-  });
-});
-
-
-// Funzione: prende Pokémon casuale
 function getPokemonRandom() {
   const lista = pokedex.pokemons;
   const index = Math.floor(Math.random() * lista.length);
@@ -64,81 +50,112 @@ function getPokemonRandom() {
   return lista[index];
 }
 
-// Invia numero al client
+// Invia numero Pokémon e avvia countdown turno
 function Invianumero() {
   const p = getPokemonRandom();
   p_num = p;
 
-  const pokemon = { numero: p.numero };
-  console.log("➡️ Inviando numero Pokémon:", pokemon);
+  console.log(`➡️ Inviando numero Pokémon: #${p.numero}`);
+  broadcast({ type: 'invio_numero', pokemon: { numero: p.numero } });
 
-  broadcast({ type: 'invio_numero', pokemon });
+  // Reset countdown turno
+  clearInterval(countdownInterval);
+  turnoCountdown = 30;
+  console.log(`⏱️ Countdown turno: ${turnoCountdown}s`);
+
+  countdownInterval = setInterval(() => {
+    broadcast({ type: 'countdown', remaining: turnoCountdown });
+    console.log(`[TIMER] Tempo rimanente turno: ${turnoCountdown}s`);
+    turnoCountdown--;
+
+    if (turnoCountdown < 0) {
+      clearInterval(countdownInterval);
+      console.log("⏰ Tempo scaduto! Mostro il nome del Pokémon");
+      InviaNome();
+      TerminaRound();
+    }
+  }, 1000);
 }
 
-// Invia nome al client
+// Invia nome Pokémon corrente
 function InviaNome() {
   if (!p_num) {
     console.log("⚠️ Tentato invio nome, ma p_num non è impostato!");
     return;
   }
+  console.log(`➡️ Inviando nome Pokémon: ${p_num.name}`);
+  broadcast({ type: 'invio_nome', pokemon: { nome: p_num.name } });
+}
 
-  const pokemon = { nome: p_num.name };
-  console.log("➡️ Inviando nome Pokémon:", pokemon);
+// Countdown inter-round
+function TerminaRound() {
+  clearInterval(interRoundInterval);
+  interRoundTime = 5;
+  console.log(`🔄 Intervallo tra i round: ${interRoundTime}s`);
 
-  broadcast({ type: 'invio_nome', pokemon });
+  interRoundInterval = setInterval(() => {
+    broadcast({ type: 'countdown', remaining: interRoundTime });
+    console.log(`[INTER-ROUND] Tempo rimanente: ${interRoundTime}s`);
+    interRoundTime--;
+
+    if (interRoundTime < 0) {
+      clearInterval(interRoundInterval);
+      console.log("➡️ Inizio nuovo round");
+      Invianumero();
+    }
+  }, 1000);
 }
 
 // =============== GESTIONE CONNESSIONI WEBSOCKET ===============
 wss.on('connection', socket => {
   const id = ++idCounter;
 
-  players[id] = { 
+  players[id] = {
     punteggio: 0,
-    nickname: 'Player' + id,
+    nickname: 'Player' + id
   };
 
   console.log(`🟢 Nuova connessione → Player${id}`);
 
-  // Invia stato iniziale
+  // Invia stato iniziale al nuovo giocatore
   socket.send(JSON.stringify({ type: 'init', id, players }));
-  console.log(`📨 Inviato init a Player${id}`);
+  console.log(`📨 Inviato init a Player${id}:`, players[id]);
 
   // Ricezione messaggi dal client
   socket.on('message', msgStr => {
     const msg = JSON.parse(msgStr);
-    console.log(`📥 [SERVER] Ricevuto da Player${id}:`, msg);
+    console.log(`📥 Ricevuto da Player${id}:`, msg);
 
-    if (!players[id]) {
-      console.log(`⚠️ Messaggio ignorato: Player${id} non esiste più`);
-      return;
-    }
+    if (!players[id]) return; // Player disconnesso
 
-    // ====== Gestione messaggi client ======
+    // Imposta nickname
     if (msg.type === 'Join' && msg.nickname) {
       players[id].nickname = msg.nickname;
-      console.log(`👤 Player${id} ha impostato il nickname → ${msg.nickname}`);
+      console.log(`👤 Player${id} ha impostato il nickname: ${msg.nickname}`);
 
+    // Tentativo di risposta
     } else if (msg.type === 'Guess' && msg.Risposta) {
-      console.log(`🤔 Player${id} ha tentato: "${msg.Risposta}"`);
+      console.log(`🤔 Player${id} tenta: "${msg.Risposta}"`);
       const distanza = Levenshtein.get(msg.Risposta.toLowerCase(), p_num.name.toLowerCase());
+
       if (distanza < 2) {
         players[id].punteggio++;
-        console.log(`✅ RISPOSTA CORRETTA da Player${id}!`);
+        console.log(`✅ RISPOSTA CORRETTA da Player${id}! Punteggio: ${players[id].punteggio}`);
         broadcast({ type: 'Correct', msg });
+
+        clearInterval(countdownInterval); // ferma countdown turno
         InviaNome();
+        TerminaRound();
       } else {
         console.log(`❌ Risposta sbagliata di Player${id}`);
         broadcast({ type: 'Wrong', msg });
       }
-    }
 
-    // Messaggi aggiuntivi se li userai:
-    if (msg.type === 'RequestNumero') {
+    // Richiesta numero o nome
+    } else if (msg.type === 'RequestNumero') {
       console.log(`🔢 Player${id} richiede il numero del Pokémon`);
       Invianumero();
-    }
-
-    if (msg.type === 'RequestNome') {
+    } else if (msg.type === 'RequestNome') {
       console.log(`📛 Player${id} richiede il nome del Pokémon`);
       InviaNome();
     }
@@ -149,5 +166,14 @@ wss.on('connection', socket => {
     console.log(`🔴 Player${id} disconnesso`);
     delete players[id];
     broadcast({ type: 'remove', id });
+    if(Object.keys(players).length===0){
+      clearInterval(interRoundInterval);
+      clearInterval(countdownInterval);
+      console.log(`Nessun Giocatore Online`);
+    }
   });
 });
+
+/* =============== AVVIO PRIMO ROUND ===============
+console.log('🏁 Avvio primo round...');
+Invianumero();*/
