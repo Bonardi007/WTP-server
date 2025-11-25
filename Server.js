@@ -84,7 +84,7 @@ function InviaNome() {
     return;
   }
   console.log(`➡️ Inviando nome Pokémon: ${p_num.name}`);
-  broadcast({ type: 'invio_nome', pokemon: { nome: p_num.name } });
+  broadcast({ type: 'invio_nome', pokemon: { nome: p_num.name,numero: p_num.numero} });
 }
 
 // Countdown inter-round

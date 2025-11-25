@@ -17,8 +17,18 @@
 
   <div class="container">
 
-    <input id="nickname" type="text" placeholder="Inserisci il tuo nickname">
-
+    <input id="nickname" type="text" maxlength="20" placeholder="Inserisci il tuo nickname">
+    <input id="room" type="text" placeholder="Inserisci il codice della stanza">
+    <script>
+      const input = document.getElementById("room");
+      
+      input.addEventListener("input", () => {
+        // Rimuove tutto tranne A-Z e 0-9
+        input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        // Limita a massimo 5 caratteri
+        if(input.value.length > 5) input.value = input.value.slice(0,5);
+      });
+      </script>
     <div class="room-actions">
       <button id="join">Entra nella stanza</button>
     </div>
@@ -28,9 +38,14 @@
   <script>
     document.getElementById("join").onclick = () => {
       const nickname = document.getElementById("nickname").value.trim();
+      const room = document.getElementById("room").value;
       if (!nickname) {
         alert("Inserisci un nickname!");
         return;
+      }
+      if(room.length!=5){
+        alert("Inserisci una stanza accettabile");
+        return
       }
 
       sessionStorage.setItem("nickname", nickname);

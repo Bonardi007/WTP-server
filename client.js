@@ -7,15 +7,16 @@ function log(msg) {
   logBox.scrollTop = logBox.scrollHeight;
 }
 
-const socket = new WebSocket("wss://wtp-server-k97x.onrender.com");
+const socket = new WebSocket("https://wtp-server-k97x.onrender.com");
 
 const nickname = sessionStorage.getItem("nickname") || "Player";
+const room = sessionStorage.getItem("room") || "Codice";
 let myId = null;
 
 socket.onopen = () => {
   log("🔗 Connesso al server");
-  socket.send(JSON.stringify({ type: 'Join', nickname }));
-  log("👤 Join inviato: " + nickname);
+  socket.send(JSON.stringify({ type: 'Join', nickname,room }));
+  log("👤 Join inviato: " + nickname,room);
 };
 
 socket.onmessage = evt => {
@@ -29,24 +30,37 @@ socket.onmessage = evt => {
 
     case 'invio_numero':
       pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${msg.pokemon.numero}.png`;
+      pokemonImg.style.filter = "brightness(0)";
+      pokemonImg.ondragstart = function() { return false; }; 
       log("📟 Numero Pokémon ricevuto: " + msg.pokemon.numero);
       break;
 
     case 'invio_nome':
       pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${msg.pokemon.numero}.png`;
+      pokemonImg.style.filter = "brightness(1)";
+      pokemonImg.ondragstart = function() { return true; }; 
       log("🔤 Nome Pokémon ricevuto: " + msg.pokemon.nome);
       break;
 
-    case 'Correct':
+    case 'Correct':      
+      pokemonImg.style.filter = "brightness(1)";
+      pokemonImg.ondragstart = function() { return true; }; 
       log("✅ Risposta corretta di: " + msg.msg.Risposta);
+
       break;
 
     case 'Wrong':
+      pokemonImg.style.filter = "brightness(0)";
+      pokemonImg.ondragstart = function() { return false; }; 
       log("❌ Risposta sbagliata di: " + msg.msg.Risposta);
       break;
 
     case 'remove':
       log("🚪 Giocatore disconnesso: " + msg.id);
+      break;
+
+    case 'countdown':
+      document.getElementById('timer').textContent = msg.remaining;
       break;
   }
 };
