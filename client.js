@@ -7,56 +7,58 @@ function log(msg) {
   logBox.scrollTop = logBox.scrollHeight;
 }
 
-const socket = new WebSocket("https://wtp-server-k97x.onrender.com");
-
+// Recupera dati da sessionStorage (salvati in lobby)
 const nickname = sessionStorage.getItem("nickname") || "Player";
-const room = sessionStorage.getItem("room") || "Codice";
+const room = sessionStorage.getItem("room") || "ABCDE";
 let myId = null;
+
+// Apri WebSocket solo qui, in game.html
+const socket = new WebSocket("https://wtp-server-k97x.onrender.com");
 
 socket.onopen = () => {
   log("🔗 Connesso al server");
-  socket.send(JSON.stringify({ type: 'Join', nickname,room }));
-  log("👤 Join inviato: " + nickname,room);
+  socket.send(JSON.stringify({ type: 'Join', nickname, room }));
+  log(`👤 Join inviato: ${nickname} nella stanza ${room}`);
 };
 
 socket.onmessage = evt => {
   const msg = JSON.parse(evt.data);
 
+  if (msg.type === 'error') {
+    window.location.href = "index.html";
+    alert(msg.message); // es. stanza piena
+    socket.close();
+    return;
+  }
+
   switch(msg.type) {
     case 'init':
       myId = msg.id;
-      log("🆗 Inizializzato! ID: " + myId);
+      log(`🆗 Inizializzato! ID: ${myId}`);
       break;
 
     case 'invio_numero':
       pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${msg.pokemon.numero}.png`;
       pokemonImg.style.filter = "brightness(0)";
-      pokemonImg.ondragstart = function() { return false; }; 
       log("📟 Numero Pokémon ricevuto: " + msg.pokemon.numero);
       break;
 
     case 'invio_nome':
       pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${msg.pokemon.numero}.png`;
       pokemonImg.style.filter = "brightness(1)";
-      pokemonImg.ondragstart = function() { return true; }; 
       log("🔤 Nome Pokémon ricevuto: " + msg.pokemon.nome);
       break;
 
-    case 'Correct':      
-      pokemonImg.style.filter = "brightness(1)";
-      pokemonImg.ondragstart = function() { return true; }; 
-      log("✅ Risposta corretta di: " + msg.msg.Risposta);
-
+    case 'Correct':
+      log(`✅ Risposta corretta: ${msg.msg.Risposta} di ${msg.msg.nickname}`);
       break;
 
     case 'Wrong':
-      pokemonImg.style.filter = "brightness(0)";
-      pokemonImg.ondragstart = function() { return false; }; 
-      log("❌ Risposta sbagliata di: " + msg.msg.Risposta);
+      log(`❌ Risposta sbagliata: ${msg.msg.Risposta} di ${msg.msg.nickname}`);
       break;
 
     case 'remove':
-      log("🚪 Giocatore disconnesso: " + msg.id);
+      log(`🚪 Giocatore disconnesso: ${msg.id}`);
       break;
 
     case 'countdown':
