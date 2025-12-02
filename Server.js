@@ -6,6 +6,7 @@ const http = require('http');
 const WebSocket = require('ws');
 const pokedex = require('./Pokedex.json');
 const Levenshtein = require('fast-levenshtein');
+const Jimp = require("jimp");
 
 // Configurazione
 const app = express();
@@ -41,7 +42,7 @@ function getPokemonRandom() {
 }
 
 // Avvia / invia numero Pokémon e countdown per la stanza
-function Invianumero(room) {
+async function Invianumero(room) {
   const r = rooms[room];
   if (!r) {
     console.log(`❌ Invianumero: stanza non trovata: ${room}`);
@@ -51,9 +52,9 @@ function Invianumero(room) {
   // Scegli Pokémon e salvalo nella stanza
   const p = getPokemonRandom();
   r.p_num = p;
-
+  r.silhouette = await getSilhouette(`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${r.p_num.numero}.png`);
   console.log(`➡️ [${room}] Inviando numero Pokémon: #${p.numero}`);
-  broadcastToRoom(room, { type: 'invio_numero', pokemon: { numero: p.numero } });
+  broadcastToRoom(room, { type: 'invio_numero', pokemon: { silhouette: r.silhouette, numero: r.p_num.numero  } });
 
   // Cancella eventuale countdown precedente
   if (r.countdownInterval) clearInterval(r.countdownInterval);
@@ -70,14 +71,14 @@ function Invianumero(room) {
       clearInterval(r.countdownInterval);
       r.countdownInterval = null;
       console.log(`[TIMER][${room}] Tempo scaduto! Mostro il nome del Pokémon`);
-      InviaNome(room);
+      InviaNome(room,'Time');
       TerminaRound(room);
     }
   }, 1000);
 }
 
 // Invia il nome del Pokémon corrente nella stanza
-function InviaNome(room) {
+function InviaNome(room,motivo="Time") {
   const r = rooms[room];
   if (!r || !r.p_num) {
     console.log(`⚠️ [${room}] Tentato invio nome, ma p_num non è impostato!`);
@@ -86,8 +87,22 @@ function InviaNome(room) {
   console.log(`➡️ [${room}] Inviando nome Pokémon: ${r.p_num.name}`);
   broadcastToRoom(room, {
     type: 'invio_nome',
+    reason: motivo,
     pokemon: { nome: r.p_num.name, numero: r.p_num.numero }
   });
+}
+
+//Funzione per ottenere la silhouette del pokemon
+async function getSilhouette(url) {
+  const image = await Jimp.read(url);
+
+  // Scala di grigi
+  image.greyscale();
+
+  // Scurisci completamente (-1 = nero)
+  image.brightness(-1);
+
+  return await image.getBase64Async(Jimp.AUTO);
 }
 
 // Termina round e avvia inter-round per la stanza
@@ -214,11 +229,12 @@ wss.on('connection', socket => {
         }
 
         // Mostra nome e termina round (inizia inter-round)
-        InviaNome(room);
+        InviaNome(room, "correct");
         TerminaRound(room);
 
       } else {
         console.log(`❌ [${room}] Risposta sbagliata di Player${id}`);
+        
         broadcastToRoom(room, { type: 'Wrong', msg: { Risposta: risposta, playerId: id, nickname: players[id].nickname } });
       }
 
@@ -233,14 +249,6 @@ wss.on('connection', socket => {
       Invianumero(room);
 
     // RequestNome (reveals)
-    } else if (msg.type === 'RequestNome') {
-      const room = players[id].room;
-      if (!room || !rooms[room]) {
-        socket.send(JSON.stringify({ type: 'error', message: 'Non sei in una stanza valida' }));
-        return;
-      }
-      console.log(`📛 Player${id} richiede il nome del Pokémon in stanza ${room}`);
-      InviaNome(room);
     }
   });
 

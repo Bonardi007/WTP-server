@@ -15,27 +15,53 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            margin: 0;
+            overflow: hidden;
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
+            max-width: 450px;
             width: 100%;
-            padding: 40px;
+            padding: 50px 40px;
             text-align: center;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h1 {
             color: #667eea;
-            margin-bottom: 30px;
-            font-size: 2em;
+            margin-bottom: 10px;
+            font-size: 2.5em;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.95em;
+            margin-bottom: 40px;
         }
 
         .input-group {
@@ -52,200 +78,401 @@
 
         input[type="text"] {
             width: 100%;
-            padding: 12px 15px;
+            padding: 15px 20px;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             transition: all 0.3s ease;
+            background: #f8f9fa;
         }
 
         input[type="text"]:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            background: white;
         }
 
         button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 15px 40px;
-            border-radius: 10px;
+            padding: 16px 40px;
+            border-radius: 12px;
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             width: 100%;
             margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
         }
 
         button:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
         }
 
-        /* Game Page Styles */
+        /* NEW GAME PAGE LAYOUT - FULLSCREEN */
         .game-container {
-            max-width: 700px;
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-rows: 1fr auto auto;
+            padding: 0;
+            gap: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
         }
 
         .waiting-message {
-            background: #ffd93d;
+            background: rgba(255, 217, 61, 0.95);
+            backdrop-filter: blur(10px);
             color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .timer {
-            background: #ff6b6b;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .pokemon-display {
-            background: #f8f9fa;
+            padding: 30px;
             border-radius: 15px;
-            padding: 40px;
-            margin-bottom: 20px;
-            min-height: 280px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
-        #pokemon {
-            max-width: 200px;
-            height: 200px;
-            image-rendering: pixelated;
-            transition: filter 0.3s ease;
-        }
-
-        .guess-section {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .guess-section input {
-            flex: 1;
-            font-size: 18px;
-        }
-
-        .guess-section button {
-            width: auto;
-            padding: 12px 30px;
-            margin: 0;
-        }
-
-        .scoreboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
+        /* Top bar with scores and timer */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            pointer-events: none;
+            z-index: 100;
         }
 
         .player-score {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
+            position: fixed;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 25px;
+            border-radius: 15px;
             border: 3px solid transparent;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 1);
+            transition: all 0.3s ease;
+            min-width: 160px;
+            pointer-events: all;
+        }
+
+        .player-score:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
         }
 
         .player-score.me {
-            border-color: #667eea;
+            top: 30px;
+            left: 30px;
+            border-color: #4CAF50;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .player-score.opponent {
+            top: 30px;
+            right: 30px;
+            border-color: #FF9800;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .player-score.me h3 {
+            color: #4CAF50;
+        }
+
+        .player-score.opponent h3 {
+            color: #FF9800;
         }
 
         .player-score h3 {
-            color: #667eea;
-            margin-bottom: 5px;
-            font-size: 16px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
         }
 
         .player-score .score {
-            font-size: 32px;
+            font-size: 38px;
             font-weight: bold;
             color: #333;
         }
 
+        .timer {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            color: #333;
+            padding: 18px 30px;
+            border-radius: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            min-width: 140px;
+            text-align: center;
+            pointer-events: all;
+            z-index: 100;
+        }
+
+        /* Center Pokemon display */
+        .pokemon-display {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            max-width: 700px;
+            margin: 0 auto;
+            width: calc(100% - 60px);
+            align-self: center;
+        }
+
+        #pokemon {
+            max-width: 400px;
+            height: 400px;
+            image-rendering: pixelated;
+            transition: filter 0.3s ease;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1));
+        }
+
+        /* Bottom input section */
+        .guess-section {
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+            width: calc(100% - 60px);
+        }
+
+        .guess-section input {
+            width: 100%;
+            font-size: 22px;
+            padding: 20px;
+            text-align: center;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .guess-section input:focus {
+            outline: none;
+            border-color: #fff;
+            box-shadow: 0 4px 25px rgba(255, 255, 255, 0.5);
+            background: white;
+        }
+
+        /* Error message at the bottom */
         .message {
             padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: calc(100% - 60px);
         }
 
         .message.correct {
-            background: #51cf66;
+            background: rgba(81, 207, 102, 0.95);
             color: white;
         }
 
         .message.wrong {
-            background: #ff6b6b;
+            background: rgba(255, 107, 107, 0.95);
             color: white;
         }
 
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px;
+        @media (max-width: 768px) {
+            .game-container {
+                gap: 15px;
             }
 
-            h1 {
-                font-size: 1.5em;
+            .player-score {
+                padding: 12px 15px;
+                min-width: 120px;
+            }
+
+            .player-score.me {
+                top: 15px;
+                left: 15px;
+            }
+
+            .player-score.opponent {
+                top: 15px;
+                right: 15px;
+            }
+
+            .player-score .score {
+                font-size: 28px;
+            }
+
+            .player-score h3 {
+                font-size: 12px;
+            }
+
+            .timer {
+                top: 15px;
+                font-size: 20px;
+                padding: 12px 20px;
+                min-width: 100px;
+            }
+
+            .pokemon-display {
+                padding: 30px;
+                width: calc(100% - 30px);
+            }
+
+            #pokemon {
+                max-width: 250px;
+                height: 250px;
             }
 
             .guess-section {
-                flex-direction: column;
+                width: calc(100% - 30px);
             }
+
+            .guess-section input {
+                font-size: 18px;
+                padding: 15px;
+            }
+
+            .message {
+                width: calc(100% - 30px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 30px 25px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .player-score {
+                padding: 10px 12px;
+                min-width: 100px;
+            }
+
+            .player-score.me {
+                top: 10px;
+                left: 10px;
+            }
+
+            .player-score.opponent {
+                top: 10px;
+                right: 10px;
+            }
+
+            .player-score .score {
+                font-size: 24px;
+            }
+
+            .timer {
+                top: 10px;
+                font-size: 18px;
+                padding: 10px 15px;
+            }
+
+            #pokemon {
+                max-width: 200px;
+                height: 200px;
+            }
+        }
+        .room-code-box {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #444;
+            border: 2px solid #667eea;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 200;
         }
     </style>
 </head>
 <body>
     <!-- INDEX PAGE -->
     <div class="container" id="indexPage">
-        <h1>🎮 Who's That Pokémon?</h1>
-        <div class="input-group">
-            <label for="nicknameInput">Il tuo nickname:</label>
-            <input type="text" id="nicknameInput" placeholder="Inserisci il tuo nickname" maxlength="20">
+        <div class="login-box">
+            <h1>🎮 Who's That Pokémon?</h1>
+            <p class="subtitle">Indovina il Pokémon prima del tuo avversario!</p>
+            <div class="input-group">
+                <label for="nicknameInput">Il tuo nickname:</label>
+                <input type="text" id="nicknameInput" placeholder="Inserisci il tuo nickname" maxlength="20">
+            </div>
+            <div class="input-group">
+                <label for="roomInput">Codice stanza:</label>
+                <input type="text" id="roomInput" placeholder="es. ABCDE" maxlength="5">
+                <script>
+                    const input = document.getElementById("roomInput");
+                    input.addEventListener("input", () => {
+                      input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                      if(input.value.length > 5) input.value = input.value.slice(0,5);
+                    });
+                    // possibilità di generare un codice casuale
+                    function genCode() {
+                      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                      let s = "";
+                      for(let i=0;i<5;i++) s += chars.charAt(Math.floor(Math.random()*chars.length));
+                      return s;
+                    }
+                    // riempi con un codice casuale se vuoi
+                    // input.value = genCode();
+                  </script>
+            </div>
+            <button onclick="joinGame()">🎯 Entra nel gioco</button>
         </div>
-        <div class="input-group">
-            <label for="roomInput">Codice stanza:</label>
-            <input type="text" id="roomInput" placeholder="es. ABCDE" maxlength="10">
-        </div>
-        <button onclick="joinGame()">🎯 Entra nel gioco</button>
     </div>
 
     <!-- GAME PAGE (hidden initially) -->
     <div class="game-container container" id="gamePage" style="display: none;">
-        <h1>🎮 Who's That Pokémon?</h1>
-        
         <div id="waitingMessage" class="waiting-message" style="display: none;">
             ⏳ Aspettando un altro giocatore...
         </div>
 
-        <div class="timer">
-            ⏱️ Timer: <span id="timer">--</span>s
-        </div>
-
-        <div id="messageBox" class="message" style="display: none;"></div>
-
-        <div class="scoreboard" id="scoreboard" style="display: none;">
+        <div class="top-bar" id="topBar" style="display: none;">
             <div class="player-score me" id="myScore">
                 <h3>Tu</h3>
                 <div class="score">0</div>
             </div>
-            <div class="player-score" id="opponentScore">
+            
+            <div class="timer">
+                ⏱️ <span id="timer">--</span>s
+            </div>
+
+            <div class="player-score opponent" id="opponentScore">
                 <h3>Avversario</h3>
                 <div class="score">0</div>
             </div>
@@ -257,8 +484,10 @@
 
         <div class="guess-section">
             <input type="text" id="guess" placeholder="Indovina il Pokémon...">
-            <button id="send">📤 Invia</button>
         </div>
+
+        <div id="messageBox" class="message" style="visibility: hidden;"></div>
+        <div id="roomCodeBox" class="room-code-box"></div>
     </div>
 
     <script>
@@ -277,15 +506,12 @@
                 return;
             }
 
-            // Salva in sessionStorage
             sessionStorage.setItem('nickname', nickname);
             sessionStorage.setItem('room', room);
 
-            // Passa alla pagina di gioco
             document.getElementById('indexPage').style.display = 'none';
-            document.getElementById('gamePage').style.display = 'block';
+            document.getElementById('gamePage').style.display = 'grid';
 
-            // Inizia il gioco
             initGame();
         }
 
@@ -299,17 +525,16 @@
             const pokemonImg = document.getElementById('pokemon');
             const guessInput = document.getElementById('guess');
             const waitingMessage = document.getElementById('waitingMessage');
-            const scoreboard = document.getElementById('scoreboard');
+            const topBar = document.getElementById('topBar');
             const messageBox = document.getElementById('messageBox');
 
-            // Recupera dati da sessionStorage
             const nickname = sessionStorage.getItem("nickname") || "Player";
             const room = sessionStorage.getItem("room") || "ABCDE";
+            document.getElementById("roomCodeBox").textContent = "Stanza: " + room;
 
             waitingMessage.style.display = 'block';
 
-            // Apri WebSocket
-            socket = new WebSocket("wss://wtp-server-k97x.onrender.com");
+            socket = new WebSocket("https://wtp-server-k97x.onrender.com");
 
             socket.onopen = () => {
                 socket.send(JSON.stringify({ type: 'Join', nickname, room }));
@@ -321,7 +546,6 @@
                 if (msg.type === 'error') {
                     alert(msg.message);
                     socket.close();
-                    // Torna alla lobby
                     document.getElementById('gamePage').style.display = 'none';
                     document.getElementById('indexPage').style.display = 'block';
                     return;
@@ -333,13 +557,11 @@
                         players = msg.players || {};
                         updateScoreboard();
                         
-                        // Se ci sono 2 giocatori, nascondi messaggio e avvia
                         if (Object.keys(players).length >= 2) {
                             waitingMessage.style.display = 'none';
-                            scoreboard.style.display = 'grid';
+                            topBar.style.display = 'grid';
                             if (!gameStarted) {
                                 gameStarted = true;
-                                // Richiedi automaticamente il primo Pokémon
                                 setTimeout(() => {
                                     socket.send(JSON.stringify({ type: 'RequestNumero' }));
                                 }, 500);
@@ -348,14 +570,12 @@
                         break;
                     
                     case 'player_joined':
-                        // Aggiungi il nuovo giocatore
                         players[msg.id] = { nickname: msg.nickname, punteggio: 0 };
                         updateScoreboard();
                         
-                        // Se ora ci sono 2 giocatori, avvia
                         if (Object.keys(players).length >= 2) {
                             waitingMessage.style.display = 'none';
-                            scoreboard.style.display = 'grid';
+                            topBar.style.display = 'grid';
                             if (!gameStarted) {
                                 gameStarted = true;
                                 setTimeout(() => {
@@ -366,29 +586,39 @@
                         break;
                     
                     case 'invio_numero':
-                        pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${msg.pokemon.numero}.png`;
-                        pokemonImg.style.filter = "brightness(0)";
+                        pokemonImg.src=msg.pokemon.silhouette;
                         pokemonImg.style.display = "block";
-                        messageBox.style.display = 'none';
+                        messageBox.style.visibility = 'hidden';
                         guessInput.disabled = false;
                         guessInput.focus();
                         break;
                     
                     case 'invio_nome':
                         pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${msg.pokemon.numero}.png`;
-                        pokemonImg.style.filter = "brightness(1)";
                         pokemonImg.style.display = "block";
                         guessInput.disabled = true;
+                        console.log(msg.reason);
+                        case 'invio_nome':
+                        pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${msg.pokemon.numero}.png`;
+                        pokemonImg.style.display = "block";
+                        guessInput.disabled = true;
+                        console.log('Reason ricevuto:', msg.reason);
+                        
+                        if(msg.reason === 'Time'){
+                            showMessage(`⏰ Tempo scaduto! Era ${msg.pokemon.nome}!`, 'wrong');
+                        } else if(msg.reason === 'correct') {
+                            // Il messaggio di vittoria viene già gestito nel caso 'Correct'
+                            // Non mostrare nulla qui per evitare conflitti
+                        }
+                        break;
                         break;
                     
                     case 'Correct':
-                        // Aggiorna punteggio
                         if (players[msg.msg.playerId]) {
                             players[msg.msg.playerId].punteggio = (players[msg.msg.playerId].punteggio || 0) + 1;
                             updateScoreboard();
                         }
                         
-                        // Mostra messaggio
                         if (msg.msg.playerId === myId) {
                             showMessage(`✅ Corretto! Era ${msg.pokemon.nome}!`, 'correct');
                         } else {
@@ -400,21 +630,20 @@
                         break;
                     
                     case 'Wrong':
-                        // Mostra solo se è la mia risposta
                         if (msg.msg.playerId === myId) {
                             showMessage(`❌ Sbagliato! Riprova...`, 'wrong');
                             setTimeout(() => {
-                                messageBox.style.display = 'none';
+                                messageBox.style.visibility = 'hidden';
                             }, 1500);
+                            guessInput.value = '';
                         }
-                        guessInput.value = '';
+
                         break;
                     
                     case 'remove':
                         delete players[msg.id];
                         updateScoreboard();
                         
-                        // Se rimane solo un giocatore, mostra messaggio attesa
                         if (Object.keys(players).length < 2) {
                             waitingMessage.style.display = 'block';
                             waitingMessage.textContent = '⏳ L\'avversario si è disconnesso. Aspettando un nuovo giocatore...';
@@ -438,17 +667,11 @@
                 document.getElementById('indexPage').style.display = 'block';
             };
 
-            // ====== EVENT LISTENERS ======
-            document.getElementById('send').onclick = () => {
-                const Risposta = guessInput.value.trim();
-                if (!Risposta) return;
-                socket.send(JSON.stringify({ type: 'Guess', Risposta }));
-            };
-
-            // Invia con Enter
             guessInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
-                    document.getElementById('send').click();
+                    const Risposta = guessInput.value.trim();
+                    if (!Risposta) return;
+                    socket.send(JSON.stringify({ type: 'Guess', Risposta }));
                 }
             });
 
@@ -458,11 +681,9 @@
                 
                 if (!myId || !players[myId]) return;
                 
-                // Il mio punteggio
                 myScoreEl.querySelector('h3').textContent = players[myId].nickname;
                 myScoreEl.querySelector('.score').textContent = players[myId].punteggio || 0;
                 
-                // Punteggio avversario
                 const opponentId = Object.keys(players).find(id => id != myId);
                 if (opponentId && players[opponentId]) {
                     opponentScoreEl.querySelector('h3').textContent = players[opponentId].nickname;
@@ -473,7 +694,7 @@
             function showMessage(text, type) {
                 messageBox.textContent = text;
                 messageBox.className = 'message ' + type;
-                messageBox.style.display = 'block';
+                messageBox.style.visibility = 'visible';
             }
         }
     </script>
