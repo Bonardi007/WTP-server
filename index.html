@@ -103,21 +103,6 @@
             overflow: hidden;
         }
 
-        .login-box::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 15px;
-            background: linear-gradient(90deg, 
-                #4A90E2 0%, #4A90E2 20%,
-                #FFD700 20%, #FFD700 40%,
-                #E63946 40%, #E63946 60%,
-                #50E3C2 60%, #50E3C2 80%,
-                #9B59B6 80%, #9B59B6 100%);
-        }
-
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -284,16 +269,15 @@
         }
 
         .waiting-message::before {
-            content: "🌀";
-            font-size: 40px;
+            content: "";
             display: block;
-            margin-bottom: 20px;
-            animation: spin 2s linear infinite;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="%23333" stroke-width="8" fill="none"><animate attributeName="stroke-dasharray" values="0,200;100,200;100,200" dur="2s" repeatCount="indefinite"/><animate attributeName="stroke-dashoffset" values="0;-30;-120" dur="2s" repeatCount="indefinite"/></circle></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
         }
 
         /* TOP BAR - STILE POKÉBALL */
@@ -364,7 +348,7 @@
             font-family: 'Press Start 2P', cursive;
         }
 
-        /* TIMER - STILE POKÉBALL */
+        /* TIMER - SEMPLICE */
         .timer {
             position: fixed;
             top: 30px;
@@ -389,17 +373,6 @@
                 5px 5px 0 rgba(0, 0, 0, 0.1);
         }
 
-        .timer::before {
-            content: "⏱️";
-            margin-right: 10px;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
         /* POKEMON DISPLAY - STILE CARTA POKÉMON */
         .pokemon-display {
             background: linear-gradient(145deg, #FFEAA7 0%, #FDCB6E 100%);
@@ -422,20 +395,6 @@
             overflow: hidden;
         }
 
-        .pokemon-display::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 15px;
-            background: linear-gradient(90deg, 
-                #E63946 0%, #E63946 25%,
-                #4A90E2 25%, #4A90E2 50%,
-                #FFD700 50%, #FFD700 75%,
-                #50E3C2 75%, #50E3C2 100%);
-        }
-
         #pokemon {
             max-width: 400px;
             height: 400px;
@@ -455,22 +414,6 @@
             max-width: 600px;
             margin: 0 auto 30px auto;
             width: calc(100% - 60px);
-            position: relative;
-        }
-
-        .guess-section::before {
-            content: "❓";
-            position: absolute;
-            left: -50px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 40px;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(-50%) scale(1); }
-            50% { transform: translateY(-50%) scale(1.2); }
         }
 
         .guess-section input {
@@ -575,11 +518,6 @@
             text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
         }
 
-        .room-code-box::before {
-            content: "🔑";
-            margin-right: 10px;
-        }
-
         /* RESPONSIVE DESIGN */
         @media (max-width: 768px) {
             .game-container {
@@ -635,11 +573,6 @@
                 padding: 20px;
             }
 
-            .guess-section::before {
-                left: -40px;
-                font-size: 30px;
-            }
-
             .message {
                 width: calc(100% - 30px);
                 padding: 20px;
@@ -693,10 +626,6 @@
                 max-width: 200px;
                 height: 200px;
             }
-
-            .guess-section::before {
-                display: none;
-            }
         }
 
         /* SCORE ANIMATION */
@@ -726,14 +655,14 @@
     <!-- INDEX PAGE -->
     <div class="container" id="indexPage">
         <div class="login-box">
-            <h1>🎮 Who's That Pokémon?</h1>
+            <h1>Who's That Pokémon?</h1>
             <p class="subtitle">Indovina il Pokémon prima del tuo avversario!</p>
             <div class="input-group">
-                <label for="nicknameInput">📛 Il tuo nickname:</label>
+                <label for="nicknameInput">Il tuo nickname:</label>
                 <input type="text" id="nicknameInput" placeholder="Inserisci il tuo nickname" maxlength="20">
             </div>
             <div class="input-group">
-                <label for="roomInput">🏠 Codice stanza:</label>
+                <label for="roomInput">Codice stanza:</label>
                 <input type="text" id="roomInput" placeholder="es. ABCDE" maxlength="5">
                 <script>
                     const input = document.getElementById("roomInput");
@@ -751,7 +680,7 @@
                     input.value = genCode();
                   </script>
             </div>
-            <button onclick="joinGame()">🎯 ENTRÀ NEL GIOCO!</button>
+            <button onclick="joinGame()">ENTRA NEL GIOCO!</button>
         </div>
     </div>
 
@@ -796,12 +725,12 @@
             const room = document.getElementById('roomInput').value.trim().toUpperCase();
 
             if (!nickname) {
-                alert('⚠️ Inserisci un nickname!');
+                alert('Inserisci un nickname!');
                 return;
             }
 
             if (!room) {
-                alert('⚠️ Inserisci un codice stanza!');
+                alert('Inserisci un codice stanza!');
                 return;
             }
 
@@ -900,7 +829,7 @@
                         guessInput.disabled = true;
                         
                         if(msg.reason === 'Time'){
-                            showMessage(`⏰ TEMPO SCADUTO! ERA ${msg.pokemon.nome.toUpperCase()}!`, 'wrong');
+                            showMessage(`TEMPO SCADUTO! ERA ${msg.pokemon.nome.toUpperCase()}!`, 'wrong');
                         } else if(msg.reason === 'correct') {
                             // Il messaggio di vittoria viene già gestito nel caso 'Correct'
                         }
@@ -925,9 +854,9 @@
                         }
                         
                         if (msg.msg.playerId === myId) {
-                            showMessage(`✅ CORRETTO! ERA ${msg.pokemon.nome.toUpperCase()}!`, 'correct');
+                            showMessage(`CORRETTO! ERA ${msg.pokemon.nome.toUpperCase()}!`, 'correct');
                         } else {
-                            showMessage(`❌ ${msg.msg.nickname.toUpperCase()} HA INDOVINATO: ${msg.pokemon.nome.toUpperCase()}`, 'wrong');
+                            showMessage(`${msg.msg.nickname.toUpperCase()} HA INDOVINATO: ${msg.pokemon.nome.toUpperCase()}`, 'wrong');
                         }
                         
                         guessInput.value = '';
@@ -936,7 +865,7 @@
                     
                     case 'Wrong':
                         if (msg.msg.playerId === myId) {
-                            showMessage(`❌ SBAGLIATO! RIPROVA...`, 'wrong');
+                            showMessage(`SBAGLIATO! RIPROVA...`, 'wrong');
                             setTimeout(() => {
                                 messageBox.style.visibility = 'hidden';
                             }, 1500);
@@ -951,7 +880,7 @@
                         
                         if (Object.keys(players).length < 2) {
                             waitingMessage.style.display = 'block';
-                            waitingMessage.textContent = 'L\'AVVERSARIO SI È DISCONNESSO. ASPETTANDO UN NUOVO GIOCATORE...';
+                            waitingMessage.textContent = 'L AVVERSARIO SI E DISCONNESSO. ASPETTANDO UN NUOVO GIOCATORE...';
                             gameStarted = false;
                         }
                         break;
@@ -967,7 +896,7 @@
             };
 
             socket.onclose = () => {
-                alert('🔌 DISCONNESSO DAL SERVER');
+                alert('DISCONNESSO DAL SERVER');
                 document.getElementById('gamePage').style.display = 'none';
                 document.getElementById('indexPage').style.display = 'block';
             };
